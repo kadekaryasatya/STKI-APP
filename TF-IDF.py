@@ -39,12 +39,18 @@ def preprocess(text, use_stem_or_lem, is_using_stopword):
     return text
 
 
+
 st.title("Preprocessing")
 use_stem_or_lem = st.selectbox(
     "Stemming/Lemmatization", ("Stemming", "Lemmatization"))
 is_using_stopword = st.checkbox("Stopword Removal", value=True)
 "---"
-documents = st.text_area("Dokumen").split("\n")
+
+text_list1 = st.text_area("Enter your first document:")
+text_list2 = st.text_area("Enter your second document:")
+
+documents = [text_list1, text_list2]
+
 documents = [preprocess(doc, use_stem_or_lem, is_using_stopword)
              for doc in documents]
 query = st.text_input("Query")
