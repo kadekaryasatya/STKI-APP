@@ -4,6 +4,8 @@ import math
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+
 
 st.markdown("""
 <style>
@@ -38,7 +40,85 @@ def preprocess(text, use_stem_or_lem, is_using_stopword):
         text = ' '.join([stemmer.stem(word) for word in text.split()])
     return text
 
+def build_index(documents):
+    idx = 1
+    indexed_files = {}
+    index = {}
+    for text in documents:
+        words = text.lower().split()  # Lowercase and split the text into words
+        indexed_files[idx] = f"dokumen{idx}"
+        for word in words:
+            if word not in index:
+                index[word] = {}
+            if idx not in index[word]:
+                index[word][idx] = 1
+            else:
+                index[word][idx] += 1
+        idx += 1
+    return index, indexed_files
 
+def build_table(data):
+        rows = []
+        for key, val in data.items():
+            row = [key, val]
+            rows.append(row)
+        return rows
+
+
+def build_table_incidence_matrix(data, indexed_files):
+        rows = []
+        for key, val in data.items():
+            row = [key]
+            for file_id, file_name in indexed_files.items():
+                if file_id in val:
+                    row.append("1")
+                else:
+                    row.append("0")
+            rows.append(row)
+        return rows
+
+
+def search(query, index, indexed_files):
+        connecting_words = []
+        different_words = []
+        for word in query:
+            if word.lower() in ["and", "or", "not"]:
+                connecting_words.append(word.lower())
+            else:
+                different_words.append(word.lower())
+        if not different_words:
+            st.write("Please enter query words")
+            return []
+        results = set(index[different_words[0]])
+        for word in different_words[1:]:
+            if word.lower() in index:
+                results = set(index[word.lower()]) & results
+            else:
+                st.write(f"{word} not found in documents")
+                return []
+        for word in connecting_words:
+            if word == "and":
+                next_results = set(index[different_words[0]])
+                for word in different_words[1:]:
+                    if word.lower() in index:
+                        next_results = set(index[word.lower()]) & next_results
+                    else:
+                        st.write(f"{word} not found in documents")
+                        return []
+                results = results & next_results
+            elif word == "or":
+                next_results = set(index[different_words[0]])
+                for word in different_words[1:]:
+                    if word.lower() in index:
+                        next_results = set(index[word.lower()]) | next_results
+                results = results | next_results
+            elif word == "not":
+                not_results = set()
+                for word in different_words[1:]:
+                    if word.lower() in index:
+                        not_results = not_results | set(index[word.lower()])
+                results = set(index[different_words[0]]) - not_results
+        return results
 
 st.title("Preprocessing")
 use_stem_or_lem = st.selectbox(
@@ -55,9 +135,41 @@ documents = [preprocess(doc, use_stem_or_lem, is_using_stopword)
              for doc in documents]
 query = st.text_input("Query")
 query = preprocess(query, use_stem_or_lem, is_using_stopword)
+index, indexed_files = build_index(documents)
 
 # tokenisasi
 tokens = [doc.lower().split() for doc in documents]
+
+query_words = word_tokenize(query)
+
+if query_words:
+        inverted_index_table = build_table(index)
+
+        results_files = []
+        if query_words:
+            files = search(query_words, index, indexed_files)
+            results_files = [indexed_files[file_id] for file_id in files]
+
+        st.write("## Inverted Index")
+        st.table(inverted_index_table)
+
+        st.write("## Incidence Matrix")
+        incidence_matrix_table_header = [
+            "Term"] + [file_name for file_name in indexed_files.values()]
+        incidence_matrix_table = build_table_incidence_matrix(index, indexed_files)
+        df_incidence_matrix_table = pd.DataFrame(
+            incidence_matrix_table, columns=incidence_matrix_table_header)
+        st.table(df_incidence_matrix_table)
+
+        if not results_files:
+            st.warning("No matching files")
+        else:
+            st.write("## Results")
+            st.markdown(f"""
+                     Dokumen yang relevan dengan query adalah:
+                        **{', '.join(results_files)}**
+                     """)
+
 
 # menghitung df dan menghitung idf
 df = {}
