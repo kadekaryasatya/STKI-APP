@@ -11,14 +11,13 @@ nltk.download('stopwords')
 st.set_page_config(page_title="STKI",
                    page_icon="📈", layout="wide")
 
-st.title("Welcome to STKI Apps")
-st.write("Select one of the menu")
+st.title("Retrival System Apps")
 
 
 selected = option_menu(None,
-    options=["About", "Boolean", "TF-IDF", 'VSM'], 
+    options=["About", "Information Retrival"], 
     icons=['house', 'cloud-upload', "list-task", 'gear'], 
-    menu_icon="cast", default_index=0, orientation="horizontal")
+    menu_icon="cast", default_index=0, orientation="vertical")
 
 
 if selected == "About":
@@ -28,21 +27,24 @@ if selected == "About":
    st.write("Boolean, TF-IDF (Term Frequency-Inverse Document Frequency), and Vector Space Model.")
    st.divider()
    st.header("Created by : ")
-   st.subheader("Kevin, Krisna, Dek Arya")
+   st.subheader("Ketut Ananta Kevin Permana")
+   st.subheader("I Kadek Krisna Prayoga")
+   st.subheader("I Kadek Arya Satya Dharma")
 
-elif selected == "Boolean":
-    with open("Boolean.py", "r") as file:
+elif selected == "Information Retrival":
+    with open("information_retrival.py", "r") as file:
       code = file.read()
       exec(code)
 
-elif selected == "TF-IDF":
-     with open("TF-IDF.py", "r") as file:
-      code = file.read()
-      exec(code)
-elif selected == "VSM":
-     with open("VSM.py", "r") as file:
-      code = file.read()
-      exec(code)
+# elif selected == "TF-IDF":
+#      with open("TF-IDF.py", "r") as file:
+#       code = file.read()
+#       exec(code)
+# elif selected == "VSM":
+#      with open("VSM.py", "r") as file:
+#       code = file.read()
+#       exec(code)
+
 
 
 
