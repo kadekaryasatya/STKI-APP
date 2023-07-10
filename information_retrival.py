@@ -453,7 +453,7 @@ if query:
 
 
     if documents and query:
-            st.title("Boyer-Moore Text Search App")
+            st.title("Boyer-Moore ")
             all_occurrences = []
             for doc in documents:
                 occurrences = boyer_moore_search(doc, query)
