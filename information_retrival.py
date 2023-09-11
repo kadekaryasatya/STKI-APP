@@ -438,7 +438,7 @@ if query:
     # Calculate cosine similarity
     df_cosine = df_cosine.transpose()
     df_cosine.columns = ['Cosine']
-    df_cosine['Ranking'] = df_cosine['Cosine'].rank(ascending=False)
+    df_cosine['Ranking'] = df_cosine['Cosine'].rank(ascending=True)
     df_cosine.sort_values(by='Ranking', inplace=True)
 
     # Create the ranking and document DataFrame
